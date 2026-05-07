@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cyber Security Dashboard</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h1 id="typing" class="dashboard-title"></h1>
+
+        <div>
+            <button onclick="toggleDarkMode()"
+                    class="btn btn-dark">
+                Dark Mode
+            </button>
+
+            <a href="/logout"
+               class="btn btn-danger">
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Live Clock -->
+    <div class="card p-3 mb-4 text-center shadow">
+        <h4>Live System Time</h4>
+        <h2 id="clock"></h2>
+    </div>
+
+    <!-- Threat Level -->
+    <div class="card p-4 mb-4 shadow">
+
+        <h3>Threat Level</h3>
+
+        <div class="progress mt-3"
+             style="height:30px;">
+
+            <div class="progress-bar bg-danger"
+                 style="width:75%"
+                 id="threatBar">
+
+                 HIGH RISK
+
+            </div>
+        </div>
+    </div>
+
+    <!-- System Usage Cards -->
+    <div class="row">
+
+        <div class="col-md-4">
+            <div class="card cpu-card p-4 shadow">
+
+                <h3>CPU Usage</h3>
+
+                <h1>{{ system_data.cpu }}%</h1>
+
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card memory-card p-4 shadow">
+
+                <h3>Memory Usage</h3>
+
+                <h1>{{ system_data.memory }}%</h1>
+
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card disk-card p-4 shadow">
+
+                <h3>Disk Usage</h3>
+
+                <h1>{{ system_data.disk }}%</h1>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Security Score -->
+    <div class="card p-4 mt-4 text-center shadow">
+
+        <h3>Security Score</h3>
+
+        <h1 class="text-success">
+            87/100
+        </h1>
+
+    </div>
+
+    <!-- Network Status -->
+    <div class="card network-card p-4 mt-4 shadow">
+
+        <h3>Network Status</h3>
+
+        <h4>ONLINE</h4>
+
+    </div>
+
+    <!-- Alert Animation -->
+    <div class="alert alert-danger alert-animation mt-4">
+
+        Suspicious activity detected!
+
+    </div>
+
+    <!-- Port Scanner -->
+    <div class="card p-4 mt-4 shadow">
+
+        <h3>Port Scanner</h3>
+
+        <form action="/scan"
+              method="POST"
+              onsubmit="return scanValidation()">
+
+            <input type="text"
+                   id="target"
+                   name="target"
+                   class="form-control mb-3"
+                   placeholder="Enter IP Address">
+
+            <button class="btn btn-primary">
+                Scan Ports
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- System Chart -->
+    <div class="chart-container mt-5 shadow">
+
+        <canvas id="systemChart"></canvas>
+
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="chart-container mt-5 shadow">
+
+        <canvas id="pieChart"></canvas>
+
+    </div>
+
+    <!-- Alerts Table -->
+    <div class="card p-4 mt-5 shadow">
+
+        <h3>Recent Alerts</h3>
+
+        <table class="table table-bordered mt-3">
+
+            <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Message</th>
+                    <th>Time</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for alert in alerts %}
+
+                <tr>
+
+                    <td>{{ alert[0] }}</td>
+                    <td>{{ alert[1] }}</td>
+                    <td>{{ alert[2] }}</td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- JS -->
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+
+<script>
+
+    createSystemChart(
+        {{ system_data.cpu }},
+        {{ system_data.memory }},
+        {{ system_data.disk }}
+    );
+
+    createPieChart();
+
+</script>
+
+</body>
+</html>
